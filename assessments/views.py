@@ -16,6 +16,10 @@ from reportlab.lib.units import inch
 
 @login_required
 def dashboard(request):
+
+    if not hasattr(request.user, "tenant") or request.user.tenant is None:
+        return render(request, "no_tenant.html")
+
     assessments = Assessment.objects.filter(
         tenant=request.user.tenant
     ).order_by("-created_at")
