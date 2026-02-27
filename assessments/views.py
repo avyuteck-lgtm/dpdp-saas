@@ -97,6 +97,17 @@ def create_assessment(request):
 
     return render(request, "assessment_form.html", {"form": form})
 
+@login_required
+def executive_summary(request):
+    assessments = Assessment.objects.filter(
+        tenant=request.user.tenant
+    ).order_by("-created_at")
+
+    latest = assessments.first()
+
+    return render(request, "executive_summary.html", {
+        "latest": latest
+    })
 
 @login_required
 def generate_pdf(request, assessment_id):
