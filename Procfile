@@ -1,0 +1,1 @@
+web: gunicorn dpdp_saas.wsgi:application

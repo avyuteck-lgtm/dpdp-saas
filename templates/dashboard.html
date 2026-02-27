@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Compliance Dashboard</h3>
+    <a href="/assessments/new/" class="btn btn-primary">New Assessment</a>
+</div>
+
+{% if assessments %}
+    
+	<div class="row mb-4">
+		
+		<div class="col-md-4">
+			<div class="card shadow-sm p-3">
+				<h6>Total Assessments</h6>
+				<h4>{{ total_count }}</h4>
+			</div>
+		</div>
+
+		<div class="col-md-4">
+			<div class="card shadow-sm p-3">
+				<h6>Latest Compliance Score</h6>
+				<h4>
+					{% if latest_assessment %}
+						{{ latest_assessment.total_score }}%
+					{% else %}
+						0%
+					{% endif %}
+				</h4>
+			</div>
+		</div>
+
+		<div class="col-md-4">
+			<div class="card shadow-sm p-3">
+				<h6>Latest Penalty Exposure</h6>
+				<h4>
+					{% if latest_assessment %}
+						₹ {{ latest_assessment.penalty_exposure }} Cr
+					{% else %}
+						₹ 0
+					{% endif %}
+				</h4>
+			</div>
+		</div>
+
+	</div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Score</th>
+                        <th>Risk</th>
+                        <th>Penalty (₹ Cr)</th>
+                        <th>Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for a in assessments %}
+                    <tr>
+                        <td>{{ a.created_at|date:"Y-m-d H:i" }}</td>
+                        <td><strong>{{ a.total_score }}%</strong></td>
+                        <td>
+                            {% if a.risk_level == "Critical Risk" %}
+                                <span class="badge bg-danger">{{ a.risk_level }}</span>
+                            {% elif a.risk_level == "High Risk" %}
+                                <span class="badge bg-warning text-dark">{{ a.risk_level }}</span>
+                            {% elif a.risk_level == "Moderate Risk" %}
+                                <span class="badge bg-info text-dark">{{ a.risk_level }}</span>
+                            {% else %}
+                                <span class="badge bg-success">{{ a.risk_level }}</span>
+                            {% endif %}
+                        </td>
+                        <td>₹ {{ a.penalty_exposure }}</td>
+                        <td>
+                            <a href="/assessments/report/{{ a.id }}/" 
+                               class="btn btn-sm btn-outline-primary">
+                                Download PDF
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- ✅ NEW: Section Breakdown Row -->
+                    <tr class="bg-light">
+                        <td colspan="5">
+                            <small>
+                                Section 8(5): {{ a.section_8_5_status }} |
+                                Section 8(6): {{ a.section_8_6_status }} |
+                                Section 9: {{ a.section_9_status }} |
+                                Section 10: {{ a.section_10_status }}
+                            </small>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% else %}
+    <div class="alert alert-info">
+        No assessments yet. Create your first compliance assessment.
+    </div>
+{% endif %}
+
+<p class="text-muted mt-3">
+Penalty exposure reflects statutory maximums under the DPDP Act schedule.
+</p>
+
+{% endblock %}
