@@ -32,16 +32,24 @@ def dashboard(request):
     return render(request, "dashboard.html", context)
 
 @login_required
-def executive_summary(request):
+def dashboard(request):
+
+    if not hasattr(request.user, "tenant") or request.user.tenant is None:
+        return render(request, "no_tenant.html")
+
     assessments = Assessment.objects.filter(
         tenant=request.user.tenant
     ).order_by("-created_at")
 
-    latest = assessments.first()
+    latest_assessment = assessments.first()
 
-    return render(request, "executive_summary.html", {
-        "latest": latest
-    })
+    context = {
+        "assessments": assessments,
+        "latest_assessment": latest_assessment,
+        "total_count": assessments.count(),
+    }
+
+    return render(request, "dashboard.html", context)
 
 @login_required
 def create_assessment(request):
